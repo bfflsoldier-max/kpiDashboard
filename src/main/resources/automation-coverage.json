@@ -1,0 +1,29 @@
+{
+  "projects": {
+    "RDSDEV": {
+      "totalAutomatedCases": 162,
+      "passedAutomationTests": 161,
+      "totalTestCases": 785
+    },
+    "BMARC": {
+      "totalAutomatedCases": 109,
+      "passedAutomationTests": 0,
+      "totalTestCases": 313
+    },
+    "BMCD": {
+      "totalAutomatedCases": 9,
+      "passedAutomationTests": 9,
+      "totalTestCases": 42
+    },
+    "BMP": {
+        "totalAutomatedCases": 414,
+        "passedAutomationTests": 414,
+        "totalTestCases": 2634
+      },
+      "BMF": {
+        "totalAutomatedCases": 0,
+        "passedAutomationTests": 0,
+        "totalTestCases": 0
+      }
+  }
+}
