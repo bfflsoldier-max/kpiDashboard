@@ -375,6 +375,13 @@ body::before {
   line-height: 1.2;
 }
 
+.sample-data-note {
+  margin: 0 0 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .selected-project-description {
   margin: 3px 0 0;
   color: var(--text-secondary);
@@ -610,6 +617,93 @@ button {
 
 #tiles > .tile:last-child:nth-child(3n + 2) {
   grid-column: 4 / span 2;
+}
+
+#tiles.sample-projects-grid {
+  grid-template-columns: minmax(0, 640px);
+  justify-content: center;
+  margin: 24px auto;
+}
+
+#tiles.sample-projects-grid > .tile {
+  grid-column: auto;
+}
+
+.sample-project-tile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 14px 22px;
+  width: 100%;
+  min-height: 320px;
+  margin: 0;
+  padding: 24px;
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  text-align: left;
+  background: #eaf4fc;
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+}
+
+.sample-project-tile:hover {
+  color: var(--text-primary);
+}
+
+.sample-tile-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.sample-project-tile .tile-team-name {
+  color: var(--text-primary);
+  font-size: 26px;
+}
+
+.sample-project-tile .tile-sprint {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.sample-project-tile .insights-title,
+.sample-project-tile .title-content,
+.sample-tile-action {
+  grid-column: 1 / -1;
+}
+
+.sample-project-tile .insights-title {
+  margin: 4px 0 0;
+}
+
+.sample-project-tile .title-content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 18px;
+}
+
+.sample-project-tile .titlestyle {
+  margin-bottom: 2px;
+  font-size: 14px;
+}
+
+.sample-tile-action {
+  justify-self: end;
+  color: var(--accent-deep);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  margin: 0 0 12px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 1;
 }
 
 .tile {
