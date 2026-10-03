@@ -4,6 +4,7 @@ window.dashboardSampleData = {
     project: "Sample Project",
     sprint: "Sample Sprint 01",
     kpis: {
+      projectScore: "--",
       defectLeakageRate: "--",
       testEffectiveness: "--",
       executionRate: "--",
@@ -15,6 +16,7 @@ window.dashboardSampleData = {
     project: "Sample Project",
     sprint: "Sample Sprint 01",
     kpis: {
+      projectScore: "--",
       defectLeakageRate: "--",
       testEffectiveness: "--",
       executionRate: "--",
@@ -26,6 +28,7 @@ window.dashboardSampleData = {
     project: "Sample Project",
     sprint: "Sample Sprint 01",
     kpis: {
+      projectScore: "--",
       defectLeakageRate: "--",
       testEffectiveness: "--",
       executionRate: "--",

@@ -630,14 +630,13 @@ button {
 }
 
 .sample-project-tile {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: center;
-  gap: 14px 22px;
+  position: relative;
+  display: block;
+  box-sizing: border-box;
   width: 100%;
-  min-height: 320px;
+  min-height: 280px;
   margin: 0;
-  padding: 24px;
+  padding: 16px;
   color: var(--text-primary);
   font-family: var(--font-ui);
   font-size: 16px;
@@ -652,58 +651,100 @@ button {
   color: var(--text-primary);
 }
 
+.sample-project-tile .tile-header {
+  min-height: 56px;
+  margin: 0;
+  padding: 10px 120px 10px 12px;
+  border-radius: 16px;
+  background: #00549a;
+  text-align: left;
+}
+
 .sample-tile-heading {
   display: flex;
-  flex-direction: column;
-  gap: 7px;
+  align-items: center;
+}
+
+.sample-project-tile .tile-text {
+  align-items: flex-start;
 }
 
 .sample-project-tile .tile-team-name {
-  color: var(--text-primary);
-  font-size: 26px;
+  color: #ffffff;
+  font-size: 27px;
 }
 
 .sample-project-tile .tile-sprint {
-  color: var(--text-muted);
+  color: #ffffff;
   font-size: 13px;
 }
 
-.sample-project-tile .insights-title,
-.sample-project-tile .title-content,
-.sample-tile-action {
-  grid-column: 1 / -1;
+.sample-tile-gauge {
+  position: absolute;
+  top: 0;
+  right: 28px;
+  z-index: 2;
+  width: 112px;
+  height: 112px;
 }
 
 .sample-project-tile .insights-title {
-  margin: 4px 0 0;
+  margin: 24px 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
 }
 
 .sample-project-tile .title-content {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .sample-project-tile .titlestyle {
-  margin-bottom: 2px;
-  font-size: 14px;
+  margin-bottom: 8px;
+  font-size: 15px;
 }
 
-.sample-tile-action {
-  justify-self: end;
-  color: var(--accent-deep);
-  font-size: 14px;
-  font-weight: 700;
+.sample-project-tile .circular-gauge {
+  display: block;
+  box-sizing: border-box;
+  width: 112px;
+  height: 112px;
+  padding: 6px;
+  overflow: visible;
+  border: 8px solid #ffffff;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 6px 14px rgba(16, 47, 79, 0.16);
 }
 
 .back-btn {
-  width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
   height: 40px;
   margin: 0 0 12px;
-  padding: 0;
-  border-radius: 50%;
-  font-size: 22px;
+  padding: 0 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
   line-height: 1;
+}
+
+.back-btn:hover {
+  background: var(--surface-soft);
+  color: var(--text-primary);
+}
+
+.back-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .tile {
@@ -1357,6 +1398,37 @@ button:active {
 
   .sprint-tab {
     min-width: 100%;
+  }
+
+  #tiles.sample-projects-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sample-project-tile {
+    min-height: 260px;
+    padding: 12px;
+  }
+
+  .sample-project-tile .tile-header {
+    padding-right: 96px;
+  }
+
+  .sample-project-tile .tile-team-name {
+    font-size: 21px;
+  }
+
+  .sample-tile-gauge {
+    top: 2px;
+    right: 8px;
+    width: 88px;
+    height: 88px;
+  }
+
+  .sample-project-tile .circular-gauge {
+    width: 88px;
+    height: 88px;
+    padding: 4px;
+    border-width: 6px;
   }
 }
 

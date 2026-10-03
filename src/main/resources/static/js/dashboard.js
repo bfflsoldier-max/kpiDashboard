@@ -1,4 +1,24 @@
 let activeDomainId = null;
+let activeProjectTile = null;
+
+function createCircularGauge(value) {
+  const numericValue = Number.parseFloat(value);
+  const hasValue = Number.isFinite(numericValue);
+  const percentage = hasValue ? Math.min(100, Math.max(0, numericValue)) : 0;
+  const radius = 49;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - percentage / 100);
+  const color = percentage >= 50 ? "#20a464" : "#ef4444";
+  const label = hasValue ? `${percentage}%` : "--";
+
+  return `
+    <svg class="circular-gauge" viewBox="0 0 120 120" role="img" aria-label="Project score ${label}">
+      <circle cx="60" cy="60" r="${radius}" fill="none" stroke="#b8b5b5" stroke-width="8" />
+      ${hasValue ? `<circle cx="60" cy="60" r="${radius}" fill="none" stroke="${color}" stroke-width="8" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 60 60)" />` : ""}
+      <text x="60" y="60" text-anchor="middle" dominant-baseline="middle" font-size="25" font-weight="700" fill="#111111">${label}</text>
+    </svg>
+  `;
+}
 
 function initializeApp() {
   document.getElementById("tiles").style.display = "none";
@@ -30,20 +50,23 @@ function renderProjectTile(domain) {
   const tiles = document.getElementById("tiles");
   tiles.innerHTML = `
         <button type="button" class="tile sample-project-tile" onclick="openProjectMetrics()">
-            <span class="sample-tile-heading">
-                <span class="tile-team-name">${domain.project}</span>
-                <span class="tile-sprint">${domain.sprint}</span>
+      <span class="tile-header sample-tile-heading">
+        <span class="tile-text">
+          <span class="tile-team-name">${domain.project}</span>
+          <span class="tile-sprint">${domain.sprint}</span>
+        </span>
             </span>
-            <span class="insights-title">Sample project KPIs</span>
+      <span class="sample-tile-gauge">${createCircularGauge(domain.kpis.projectScore)}</span>
+      <span class="insights-title">Key Insights</span>
             <span class="title-content">
                 <span class="titlestyle">Defect Leakage</span>
                 <span class="titlestyle">Test Effectiveness</span>
                 <span class="titlestyle">Execution Rate</span>
                 <span class="titlestyle">Automation Pass Rate</span>
             </span>
-            <span class="sample-tile-action">View performance KPIs <span aria-hidden="true">→</span></span>
         </button>
     `;
+  activeProjectTile = tiles.querySelector(".sample-project-tile");
 }
 
 function openProjectMetrics() {
@@ -119,6 +142,7 @@ function goBack() {
   if (!activeDomainId) return;
   document.getElementById("userSection").classList.remove("active");
   document.getElementById("tiles").style.display = "grid";
+  activeProjectTile?.focus();
 }
 
 function toggleHeroMenu() {
