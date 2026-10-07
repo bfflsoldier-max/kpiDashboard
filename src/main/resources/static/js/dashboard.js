@@ -1,6 +1,11 @@
 let activeDomainId = null;
 let activeProjectTile = null;
 let activeProjectData = null;
+let activeFeederStreamKey = null;
+let registeredProjects = [];
+let adminToken = null;
+let logoTapCount = 0;
+let logoTapTimer = null;
 const emptyKpis = {
   projectScore: "--",
   defectLeakageRate: "--",
@@ -32,13 +37,221 @@ function initializeApp() {
   document.getElementById("tiles").style.display = "none";
   document.getElementById("userSection").classList.remove("active");
   document.getElementById("overviewSection").classList.remove("hidden");
+  document
+    .querySelector(".hero-wordmark")
+    .addEventListener("click", handleLogoTap);
+  document
+    .querySelector(".hero-wordmark")
+    .addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        handleLogoTap();
+      }
+    });
+  document
+    .getElementById("admin-login-form")
+    .addEventListener("submit", loginAdmin);
+}
+
+function feederApiUrl(path) {
+  const baseUrl = window.dashboardDataFeederBaseUrl.replace(/\/+$/, "");
+  return `${baseUrl}${path}`;
+}
+
+function handleLogoTap() {
+  logoTapCount += 1;
+  clearTimeout(logoTapTimer);
+  logoTapTimer = setTimeout(() => {
+    logoTapCount = 0;
+  }, 1800);
+
+  if (logoTapCount === 5) {
+    logoTapCount = 0;
+    openAdminLogin();
+  }
+}
+
+function openAdminLogin() {
+  if (adminToken) return;
+  const dialog = document.getElementById("admin-login-dialog");
+  document.getElementById("admin-login-status").textContent = "";
+  dialog.showModal();
+  dialog.querySelector('[name="username"]').focus();
+}
+
+function closeAdminLogin() {
+  const dialog = document.getElementById("admin-login-dialog");
+  dialog.close();
+  document.getElementById("admin-login-form").reset();
+}
+
+async function loginAdmin(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.getElementById("admin-login-status");
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  status.textContent = "";
+
+  try {
+    const formData = new FormData(form);
+    const response = await fetch(feederApiUrl("/api/admin/login"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: formData.get("username").trim(),
+        password: formData.get("password"),
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(
+        response.status === 401
+          ? "Invalid username or password"
+          : `Login request failed (${response.status})`,
+      );
+    }
+    const result = await response.json();
+    if (typeof result.token !== "string" || result.token.length === 0) {
+      throw new Error("The Data Feeder returned an invalid admin session");
+    }
+
+    adminToken = result.token;
+    document.body.classList.add("admin-mode");
+    document.getElementById("admin-mode-button").classList.remove("hidden");
+    closeAdminLogin();
+    renderRegisteredProjects(registeredProjects);
+    refreshVisibleFeederStream();
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    submitButton.disabled = false;
+  }
+}
+
+function logoutAdmin() {
+  adminToken = null;
+  document.body.classList.remove("admin-mode");
+  document.getElementById("admin-mode-button").classList.add("hidden");
+  renderRegisteredProjects(registeredProjects);
+  refreshVisibleFeederStream();
+}
+
+async function adminDelete(path, requestBody) {
+  if (!adminToken) {
+    throw new Error("Log in to admin mode before deleting data");
+  }
+  const response = await fetch(feederApiUrl(path), {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${adminToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(requestBody),
+  });
+  if (response.status === 401) {
+    logoutAdmin();
+    throw new Error("Your admin session expired. Log in again.");
+  }
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(
+      body?.detail ?? body?.message ?? `Delete request failed (${response.status})`,
+    );
+  }
+}
+
+async function deleteFeederProject(project) {
+  const projectLabel = formatProjectName(project.projectName);
+  if (!window.confirm(`Delete project "${projectLabel}" from ${project.streamName}?`)) {
+    return;
+  }
+
+  try {
+    await adminDelete("/api/projects", {
+      domain: project.domain,
+      streamName: project.streamName,
+      projectId: project.projectId,
+      boardId: project.boardId,
+    });
+    registeredProjects = registeredProjects.filter(
+      (entry) =>
+        entry.domain !== project.domain ||
+        entry.streamName !== project.streamName ||
+        entry.projectId !== project.projectId ||
+        entry.boardId !== project.boardId,
+    );
+    renderRegisteredProjects(registeredProjects);
+    refreshVisibleFeederStream();
+  } catch (error) {
+    showDashboardStatus(`Could not delete project: ${error.message}`);
+  }
+}
+
+async function deleteFeederStream(domain, streamName, projectCount) {
+  const detail = projectCount === 1 ? "1 project" : `${projectCount} projects`;
+  if (
+    !window.confirm(
+      `Delete stream "${streamName}" from ${domain} and all ${detail} in it?`,
+    )
+  ) {
+    return;
+  }
+
+  try {
+    await adminDelete("/api/projects/stream", { domain, streamName });
+    const deletedStreamKey = feederStreamKey(domain, streamName);
+    registeredProjects = registeredProjects.filter(
+      (project) =>
+        feederStreamKey(project.domain, project.streamName) !== deletedStreamKey,
+    );
+    renderRegisteredProjects(registeredProjects);
+    if (activeFeederStreamKey === feederStreamKey(domain, streamName)) {
+      showOverview();
+    }
+  } catch (error) {
+    showDashboardStatus(`Could not delete stream: ${error.message}`);
+  }
+}
+
+function showDashboardStatus(message) {
+  const status = document.getElementById("dashboard-status");
+  status.textContent = message;
+  status.classList.remove("hidden");
+}
+
+function feederStreamKey(domain, streamName) {
+  return `${domain.trim().toLocaleLowerCase()}\u0000${streamName.trim().toLocaleLowerCase()}`;
+}
+
+function refreshVisibleFeederStream() {
+  if (!activeFeederStreamKey) return;
+  const projects = registeredProjects.filter(
+    (project) => feederStreamKey(project.domain, project.streamName) === activeFeederStreamKey,
+  );
+  if (projects.length === 0) {
+    showOverview();
+    return;
+  }
+  activeProjectData = null;
+  document.getElementById("userSection").classList.remove("active");
+  document.getElementById("tiles").style.display = "grid";
+  renderProjectTiles(projects);
+}
+
+function showOverview() {
+  activeFeederStreamKey = null;
+  activeDomainId = null;
+  activeProjectData = null;
+  document.getElementById("userSection").classList.remove("active");
+  document.getElementById("tiles").style.display = "none";
+  document.getElementById("overviewSection").classList.remove("hidden");
+  document.getElementById("selectedProjectContext").classList.add("hidden");
 }
 
 async function loadRegisteredProjects() {
   const status = document.getElementById("dashboard-status");
   try {
-    const baseUrl = window.dashboardDataFeederBaseUrl.replace(/\/+$/, "");
-    const response = await fetch(`${baseUrl}/api/projects`);
+    const response = await fetch(feederApiUrl("/api/projects"));
     if (!response.ok) {
       throw new Error(`Request failed (${response.status})`);
     }
@@ -56,6 +269,7 @@ async function loadRegisteredProjects() {
     ) {
       throw new Error("The Data Feeder returned an invalid project list");
     }
+    registeredProjects = projects;
     renderRegisteredProjects(projects);
     status.textContent = "";
     status.classList.add("hidden");
@@ -67,7 +281,7 @@ async function loadRegisteredProjects() {
 
 function renderRegisteredProjects(projects) {
   document
-    .querySelectorAll(".registered-stream-item")
+    .querySelectorAll(".registered-stream-row")
     .forEach((item) => item.remove());
   document
     .querySelectorAll(".registered-domain-group")
@@ -75,7 +289,7 @@ function renderRegisteredProjects(projects) {
 
   const streams = new Map();
   projects.forEach((project) => {
-    const key = `${project.domain.trim().toLocaleLowerCase()}\u0000${project.streamName.trim().toLocaleLowerCase()}`;
+    const key = feederStreamKey(project.domain, project.streamName);
     if (!streams.has(key)) streams.set(key, []);
     streams.get(key).push(project);
   });
@@ -83,6 +297,8 @@ function renderRegisteredProjects(projects) {
   streams.forEach((streamProjects) => {
     const { domain, streamName } = streamProjects[0];
     const group = findOrCreateDomainGroup(domain);
+    const row = document.createElement("div");
+    row.className = "registered-stream-row";
     const item = document.createElement("button");
     item.type = "button";
     item.className = "hero-nav-subitem registered-stream-item";
@@ -90,7 +306,15 @@ function renderRegisteredProjects(projects) {
     item.addEventListener("click", (event) =>
       openFeederStream(event, streamProjects),
     );
-    group.querySelector(".hero-nav-subitems").append(item);
+    row.append(item);
+    if (adminToken) {
+      const deleteButton = createDeleteButton(
+        `Delete ${streamName} stream`,
+        () => deleteFeederStream(domain, streamName, streamProjects.length),
+      );
+      row.append(deleteButton);
+    }
+    group.querySelector(".hero-nav-subitems").append(row);
   });
 }
 
@@ -130,6 +354,7 @@ function openSampleDomain(event, domainId) {
   if (!domain) return;
 
   activeDomainId = domainId;
+  activeFeederStreamKey = null;
   activeProjectData = { ...domain };
   document.getElementById("selectedProjectLabel").textContent =
     `${domain.domain} · Sample Data`;
@@ -149,6 +374,7 @@ function openSampleDomain(event, domainId) {
 function openFeederStream(event, projects) {
   const { domain, streamName } = projects[0];
   activeDomainId = domain.trim().toLocaleLowerCase();
+  activeFeederStreamKey = feederStreamKey(domain, streamName);
   activeProjectData = null;
   document.getElementById("selectedProjectLabel").textContent =
     `${domain} · ${streamName}`;
@@ -172,11 +398,13 @@ function formatProjectName(projectName) {
 function renderProjectTiles(projects, isSampleData = false) {
   const tiles = document.getElementById("tiles");
   const projectTiles = projects.map((project) => {
-    const tile = document.createElement("button");
-    tile.type = "button";
+    const tile = document.createElement("article");
     tile.className = "tile sample-project-tile";
-    tile.addEventListener("click", () =>
-      openProjectMetrics(project, tile, isSampleData),
+    const openButton = document.createElement("button");
+    openButton.type = "button";
+    openButton.className = "project-tile-open";
+    openButton.addEventListener("click", () =>
+      openProjectMetrics(project, openButton, isSampleData),
     );
 
     const header = document.createElement("span");
@@ -219,11 +447,36 @@ function renderProjectTiles(projects, isSampleData = false) {
       insights.append(item);
     });
 
-    tile.append(header, gauge, insightsTitle, insights);
+    openButton.append(header, gauge, insightsTitle, insights);
+    tile.append(openButton);
+    if (!isSampleData && adminToken) {
+      tile.append(
+        createDeleteButton(
+          `Delete ${formatProjectName(project.projectName)} project`,
+          () => deleteFeederProject(project),
+          "project-delete-button",
+        ),
+      );
+    }
     return tile;
   });
   tiles.replaceChildren(...projectTiles);
-  activeProjectTile = projectTiles[0] ?? null;
+  activeProjectTile =
+    projectTiles[0]?.querySelector(".project-tile-open") ?? null;
+}
+
+function createDeleteButton(label, onDelete, extraClass = "") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `admin-delete-button ${extraClass}`.trim();
+  button.setAttribute("aria-label", label);
+  button.title = label;
+  button.textContent = "×";
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    onDelete();
+  });
+  return button;
 }
 
 function openProjectMetrics(project, tile, isSampleData) {

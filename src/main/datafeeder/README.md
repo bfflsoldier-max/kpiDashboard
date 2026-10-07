@@ -18,5 +18,9 @@ The form posts to `http://localhost:8090/api/projects` by default, even when ser
 
 - `GET /api/projects` returns saved projects.
 - `POST /api/projects` creates or updates a project using `streamName`, `domain`, `projectName`, `projectId`, and a positive `boardId`.
+- `POST /api/admin/login` authenticates the configured admin and returns a one-hour bearer token.
+- `DELETE /api/projects` deletes one registration; `DELETE /api/projects/stream` deletes every registration for a domain/stream pair. Both delete routes require the admin bearer token.
 
 Registrations are upserted by domain, stream, project ID, and board ID. The dashboard groups them under their domain and stream, and labels project tiles as `ProjectID_BoardID`.
+
+In the dashboard, click the Delivery 360 wordmark five times to open the admin login. Configure credentials with `DATAFEEDER_ADMIN_USERNAME` and `DATAFEEDER_ADMIN_PASSWORD`. The defaults (`admin` / `admin123`) are intended only for local development; use unique credentials and HTTPS when deploying.

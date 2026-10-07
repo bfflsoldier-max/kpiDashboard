@@ -40,6 +40,8 @@ Open `http://localhost:8090/` to register a stream, domain, project name, Jira p
 
 The project menu groups registrations by domain and stream. Selecting a stream shows a tile for each registered project with a sprint label in `ProjectID_BoardID` format. Project names containing `Datahub` display as `Data Hub`. Existing sample projects remain available.
 
+To manage registrations, click the Delivery 360 wordmark five times and sign in with the configured Data Feeder admin credentials. Admin mode adds controls to delete an individual registered project or a stream and all of its projects; sample projects cannot be deleted this way. Set `DATAFEEDER_ADMIN_USERNAME` and `DATAFEEDER_ADMIN_PASSWORD` on the Data Feeder service. The defaults (`admin` / `admin123`) are for local development only; use unique credentials and HTTPS when deploying.
+
 ## Run
 
 Set `JIRA_URL` and `JIRA_PAT`, provide the domain/project configuration, then run:

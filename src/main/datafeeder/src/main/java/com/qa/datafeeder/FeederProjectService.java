@@ -24,4 +24,16 @@ public class FeederProjectService {
     public List<FeederProject> findAll() {
         return repository.findAll();
     }
+
+    public boolean deleteProject(String domain, String streamName, String projectId, int boardId) {
+        return repository.deleteProject(
+                domain.trim(),
+                streamName.trim(),
+                projectId.trim(),
+                boardId) > 0;
+    }
+
+    public boolean deleteStream(String domain, String streamName) {
+        return repository.deleteStream(domain.trim(), streamName.trim()) > 0;
+    }
 }

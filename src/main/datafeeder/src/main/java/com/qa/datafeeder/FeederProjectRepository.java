@@ -58,4 +58,21 @@ public class FeederProjectRepository {
                         + "FROM feeder_projects ORDER BY domain_name, stream_name, project_name",
                 PROJECT_ROW_MAPPER);
     }
+
+    public int deleteProject(String domain, String streamName, String projectId, int boardId) {
+        return jdbcTemplate.update(
+                "DELETE FROM feeder_projects "
+                        + "WHERE domain_name = ? AND stream_name = ? AND project_id = ? AND board_id = ?",
+                domain,
+                streamName,
+                projectId,
+                boardId);
+    }
+
+    public int deleteStream(String domain, String streamName) {
+        return jdbcTemplate.update(
+                "DELETE FROM feeder_projects WHERE domain_name = ? AND stream_name = ?",
+                domain,
+                streamName);
+    }
 }
