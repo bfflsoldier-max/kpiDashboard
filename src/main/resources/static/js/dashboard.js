@@ -1,5 +1,13 @@
 let activeDomainId = null;
 let activeProjectTile = null;
+let activeProjectData = null;
+const emptyKpis = {
+  projectScore: "--",
+  defectLeakageRate: "--",
+  testEffectiveness: "--",
+  executionRate: "--",
+  automationPassRate: "--",
+};
 
 function createCircularGauge(value) {
   const numericValue = Number.parseFloat(value);
@@ -26,11 +34,103 @@ function initializeApp() {
   document.getElementById("overviewSection").classList.remove("hidden");
 }
 
+async function loadRegisteredProjects() {
+  const status = document.getElementById("dashboard-status");
+  try {
+    const baseUrl = window.dashboardDataFeederBaseUrl.replace(/\/+$/, "");
+    const response = await fetch(`${baseUrl}/api/projects`);
+    if (!response.ok) {
+      throw new Error(`Request failed (${response.status})`);
+    }
+    const projects = await response.json();
+    if (
+      !Array.isArray(projects) ||
+      projects.some(
+        (project) =>
+          typeof project.streamName !== "string" ||
+          typeof project.domain !== "string" ||
+          typeof project.projectName !== "string" ||
+          typeof project.projectId !== "string" ||
+          !Number.isInteger(project.boardId),
+      )
+    ) {
+      throw new Error("The Data Feeder returned an invalid project list");
+    }
+    renderRegisteredProjects(projects);
+    status.textContent = "";
+    status.classList.add("hidden");
+  } catch (error) {
+    status.textContent = `Could not load feeder projects: ${error.message}. Check that the Data Feeder service is running.`;
+    status.classList.remove("hidden");
+  }
+}
+
+function renderRegisteredProjects(projects) {
+  document
+    .querySelectorAll(".registered-stream-item")
+    .forEach((item) => item.remove());
+  document
+    .querySelectorAll(".registered-domain-group")
+    .forEach((group) => group.remove());
+
+  const streams = new Map();
+  projects.forEach((project) => {
+    const key = `${project.domain.trim().toLocaleLowerCase()}\u0000${project.streamName.trim().toLocaleLowerCase()}`;
+    if (!streams.has(key)) streams.set(key, []);
+    streams.get(key).push(project);
+  });
+
+  streams.forEach((streamProjects) => {
+    const { domain, streamName } = streamProjects[0];
+    const group = findOrCreateDomainGroup(domain);
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "hero-nav-subitem registered-stream-item";
+    item.textContent = streamName;
+    item.addEventListener("click", (event) =>
+      openFeederStream(event, streamProjects),
+    );
+    group.querySelector(".hero-nav-subitems").append(item);
+  });
+}
+
+function findOrCreateDomainGroup(domainName) {
+  const normalizedDomain = domainName.trim().toLocaleLowerCase();
+  const existingGroup = [...document.querySelectorAll(".hero-nav-group")].find(
+    (group) =>
+      group.querySelector(".hero-nav-toggle span")?.textContent
+        .trim()
+        .toLocaleLowerCase() === normalizedDomain,
+  );
+  if (existingGroup) return existingGroup;
+
+  const group = document.createElement("div");
+  group.className = "hero-nav-group registered-domain-group";
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "hero-nav-toggle";
+  toggle.addEventListener("click", () => toggleNavGroup(toggle));
+
+  const name = document.createElement("span");
+  name.textContent = domainName;
+  const chevron = document.createElement("span");
+  chevron.className = "hero-nav-chevron";
+  chevron.setAttribute("aria-hidden", "true");
+  toggle.append(name, chevron);
+
+  const subitems = document.createElement("div");
+  subitems.className = "hero-nav-subitems";
+  group.append(toggle, subitems);
+  document.getElementById("heroNavPanel").append(group);
+  return group;
+}
+
 function openSampleDomain(event, domainId) {
   const domain = window.dashboardSampleData[domainId];
   if (!domain) return;
 
   activeDomainId = domainId;
+  activeProjectData = { ...domain };
   document.getElementById("selectedProjectLabel").textContent =
     `${domain.domain} · Sample Data`;
   document.getElementById("selectedProjectTitle").textContent = domain.project;
@@ -43,39 +143,103 @@ function openSampleDomain(event, domainId) {
     .forEach((item) => item.classList.remove("is-active"));
   event?.currentTarget?.classList.add("is-active");
   closeHeroMenu();
-  renderProjectTile(domain);
+  renderProjectTiles([domain], true);
 }
 
-function renderProjectTile(domain) {
+function openFeederStream(event, projects) {
+  const { domain, streamName } = projects[0];
+  activeDomainId = domain.trim().toLocaleLowerCase();
+  activeProjectData = null;
+  document.getElementById("selectedProjectLabel").textContent =
+    `${domain} · ${streamName}`;
+  document.getElementById("selectedProjectTitle").textContent = streamName;
+  document.getElementById("selectedProjectContext").classList.remove("hidden");
+  document.getElementById("overviewSection").classList.add("hidden");
+  document.getElementById("tiles").style.display = "grid";
+  document.getElementById("userSection").classList.remove("active");
+  document
+    .querySelectorAll(".hero-nav-subitem")
+    .forEach((item) => item.classList.remove("is-active"));
+  event.currentTarget.classList.add("is-active");
+  closeHeroMenu();
+  renderProjectTiles(projects);
+}
+
+function formatProjectName(projectName) {
+  return projectName.replace(/datahub/gi, "Data Hub");
+}
+
+function renderProjectTiles(projects, isSampleData = false) {
   const tiles = document.getElementById("tiles");
-  tiles.innerHTML = `
-        <button type="button" class="tile sample-project-tile" onclick="openProjectMetrics()">
-      <span class="tile-header sample-tile-heading">
-        <span class="tile-text">
-          <span class="tile-team-name">${domain.project}</span>
-          <span class="tile-sprint">${domain.sprint}</span>
-        </span>
-            </span>
-      <span class="sample-tile-gauge">${createCircularGauge(domain.kpis.projectScore)}</span>
-      <span class="insights-title">Key Insights</span>
-            <span class="title-content">
-                <span class="titlestyle">Defect Leakage</span>
-                <span class="titlestyle">Test Effectiveness</span>
-                <span class="titlestyle">Execution Rate</span>
-                <span class="titlestyle">Automation Pass Rate</span>
-            </span>
-        </button>
-    `;
-  activeProjectTile = tiles.querySelector(".sample-project-tile");
+  const projectTiles = projects.map((project) => {
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = "tile sample-project-tile";
+    tile.addEventListener("click", () =>
+      openProjectMetrics(project, tile, isSampleData),
+    );
+
+    const header = document.createElement("span");
+    header.className = "tile-header sample-tile-heading";
+    const text = document.createElement("span");
+    text.className = "tile-text";
+    const projectName = document.createElement("span");
+    projectName.className = "tile-team-name";
+    projectName.textContent = isSampleData
+      ? project.project
+      : formatProjectName(project.projectName);
+    const sprintName = document.createElement("span");
+    sprintName.className = "tile-sprint";
+    sprintName.textContent = isSampleData
+      ? project.sprint
+      : `${project.projectId}_${project.boardId}`;
+    text.append(projectName, sprintName);
+    header.append(text);
+
+    const gauge = document.createElement("span");
+    gauge.className = "sample-tile-gauge";
+    gauge.innerHTML = createCircularGauge(
+      (project.kpis ?? emptyKpis).projectScore,
+    );
+
+    const insightsTitle = document.createElement("span");
+    insightsTitle.className = "insights-title";
+    insightsTitle.textContent = "Key Insights";
+    const insights = document.createElement("span");
+    insights.className = "title-content";
+    [
+      "Defect Leakage",
+      "Test Effectiveness",
+      "Execution Rate",
+      "Automation Pass Rate",
+    ].forEach((insight) => {
+      const item = document.createElement("span");
+      item.className = "titlestyle";
+      item.textContent = insight;
+      insights.append(item);
+    });
+
+    tile.append(header, gauge, insightsTitle, insights);
+    return tile;
+  });
+  tiles.replaceChildren(...projectTiles);
+  activeProjectTile = projectTiles[0] ?? null;
 }
 
-function openProjectMetrics() {
-  const domain = window.dashboardSampleData[activeDomainId];
-  if (!domain) return;
+function openProjectMetrics(project, tile, isSampleData) {
+  activeProjectData = {
+    ...project,
+    kpis: project.kpis ?? emptyKpis,
+    isSampleData,
+  };
+  activeProjectTile = tile;
 
   document.getElementById("tiles").style.display = "none";
   document.getElementById("userSection").classList.add("active");
-  renderTeamKpis(domain.kpis);
+  document.querySelector(".sample-data-note").textContent = isSampleData
+    ? "Sample metrics for demonstration"
+    : "No KPI metrics have been provided for this project yet.";
+  renderTeamKpis(activeProjectData.kpis);
 }
 
 function renderTeamKpis(kpis = {}) {
@@ -150,6 +314,7 @@ function toggleHeroMenu() {
   const isOpen = menuButton.classList.toggle("is-open");
   document.getElementById("heroNavPanel").classList.toggle("hidden", !isOpen);
   menuButton.setAttribute("aria-expanded", String(isOpen));
+  if (isOpen) loadRegisteredProjects();
 }
 
 function closeHeroMenu() {

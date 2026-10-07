@@ -350,6 +350,12 @@ body::before {
   display: none;
 }
 
+.dashboard-status {
+  margin: 12px 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
 .selected-project-marker {
   width: 12px;
   height: 12px;

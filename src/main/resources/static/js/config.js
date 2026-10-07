@@ -1,3 +1,5 @@
+window.dashboardDataFeederBaseUrl = "http://localhost:8090";
+
 window.dashboardSampleData = {
   development: {
     domain: "Development",

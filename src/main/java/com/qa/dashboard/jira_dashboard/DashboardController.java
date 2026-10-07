@@ -1,6 +1,10 @@
 package com.qa.dashboard.jira_dashboard;
 
+import java.net.URI;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,14 +15,27 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class DashboardController {
 
     private final JiraService jiraService;
+    private final URI dataFeederUri;
 
-    DashboardController(JiraService jiraService) {
+    DashboardController(
+            JiraService jiraService,
+            @Value("${dashboard.datafeeder-url:http://localhost:8090/}") URI dataFeederUri) {
         this.jiraService = jiraService;
+        this.dataFeederUri = dataFeederUri;
     }
 
     @GetMapping("/")
-    public String home() {
-        return "Jira dashboard backend is running. Use /api/domains to inspect configured domains.";
+    public ResponseEntity<Void> home() {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("/index.html"))
+                .build();
+    }
+
+    @GetMapping({"/datafeeder", "/datafeeder/", "/datafeeder/index.html"})
+    public ResponseEntity<Void> dataFeeder() {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(dataFeederUri)
+                .build();
     }
 
     @GetMapping("/api/domains")

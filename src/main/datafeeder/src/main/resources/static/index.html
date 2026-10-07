@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#eaf2f8" />
+    <meta name="datafeeder-api-base-url" content="http://localhost:8090" />
+    <title>Settings · Data Feeder</title>
+    <link rel="stylesheet" href="./style.css?v=20261007" />
+    <script src="./app.js?v=20261007-live-server-fix" defer></script>
+  </head>
+  <body>
+    <main class="settings-page">
+      <header class="app-header">
+        <a class="brand" href="#settings" aria-label="Data Feeder">
+          <span>Data Feeder</span>
+        </a>
+      </header>
+      <section class="settings-section" id="settings">
+        <div class="section-title">
+          <h1>Settings</h1>
+          <button class="button button-secondary" type="button">
+            Discard changes
+          </button>
+        </div>
+
+        <form class="settings-grid" id="project-settings-form">
+          <div class="panel settings-panel">
+            <div class="panel-heading settings-heading">
+              <h2>Project details</h2>
+            </div>
+            <div class="form-fields">
+              <label class="field">
+                <span>Stream name <span class="required">*</span></span>
+                <input
+                  type="text"
+                  name="stream-name"
+                  placeholder="e.g. Bellmedia"
+                  required
+                />
+              </label>
+              <label class="field">
+                <span>Domain <span class="required">*</span></span>
+                <input
+                  type="text"
+                  name="domain"
+                  placeholder="e.g. QA"
+                  required
+                />
+              </label>
+              <label class="field">
+                <span>Project name <span class="required">*</span></span>
+                <input
+                  type="text"
+                  name="project-name"
+                  placeholder="e.g. Datahub"
+                  required
+                />
+              </label>
+              <label class="field">
+                <span>Project ID <span class="required">*</span></span>
+                <input
+                  type="text"
+                  name="project-id"
+                  placeholder="e.g. RDSDEV"
+                  required
+                />
+              </label>
+              <label class="field">
+                <span>Board ID <span class="required">*</span></span>
+                <input
+                  type="number"
+                  name="board-id"
+                  min="1"
+                  step="1"
+                  placeholder="e.g. 318"
+                  required
+                />
+              </label>
+              <fieldset class="workflow-fieldset is-disabled" disabled>
+                <legend>Workflow stages</legend>
+                <div class="workflow-grid">
+                  <label class="field">
+                    <span>Development</span>
+                    <input
+                      type="text"
+                      name="development-stage"
+                      placeholder="e.g. Dev"
+                    />
+                  </label>
+                  <label class="field">
+                    <span>QA</span>
+                    <input type="text" name="qa-stage" placeholder="e.g. QA" />
+                  </label>
+                  <label class="field">
+                    <span>Review</span>
+                    <input
+                      type="text"
+                      name="review-stage"
+                      placeholder="e.g. Review"
+                    />
+                  </label>
+                  <label class="field">
+                    <span>Production</span>
+                    <input
+                      type="text"
+                      name="production-stage"
+                      placeholder="e.g. Production"
+                    />
+                  </label>
+                </div>
+              </fieldset>
+              <label class="field is-disabled">
+                <span>Comments</span>
+                <textarea
+                  name="comments"
+                  rows="4"
+                  placeholder="Add a note for your team or describe any process differences..."
+                  disabled
+                ></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div
+            class="panel settings-panel automation-settings is-disabled"
+            aria-disabled="true"
+          >
+            <div class="panel-heading settings-heading">
+              <h2>Automation metrics</h2>
+            </div>
+            <fieldset class="metrics-fieldset" disabled>
+              <legend class="visually-hidden">Automation metrics</legend>
+              <div class="form-fields">
+                <label class="field">
+                  <span>Automated cases</span>
+                  <input
+                    type="number"
+                    name="automated-cases"
+                    min="0"
+                    placeholder="e.g. 1824"
+                  />
+                </label>
+                <label class="field">
+                  <span>Total regression cases</span>
+                  <input
+                    type="number"
+                    name="regression-cases"
+                    min="0"
+                    placeholder="e.g. 2400"
+                  />
+                </label>
+                <label class="field">
+                  <span>Passed automation tests</span>
+                  <input
+                    type="number"
+                    name="passed-tests"
+                    min="0"
+                    placeholder="e.g. 1792"
+                  />
+                </label>
+                <label class="field">
+                  <span>Executed automation tests</span>
+                  <input
+                    type="number"
+                    name="executed-tests"
+                    min="0"
+                    placeholder="e.g. 2106"
+                  />
+                </label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="settings-actions">
+            <p
+              class="form-status"
+              id="form-status"
+              role="status"
+              aria-live="polite"
+            ></p>
+            <button class="button button-primary" type="submit">Submit</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
