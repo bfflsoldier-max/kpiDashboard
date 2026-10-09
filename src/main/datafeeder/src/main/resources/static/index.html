@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#eaf2f8" />
     <meta name="datafeeder-api-base-url" content="http://localhost:8090" />
     <title>Settings · Data Feeder</title>
-    <link rel="stylesheet" href="./style.css?v=20261007" />
+    <link rel="stylesheet" href="./style.css?v=20261008" />
     <script src="./app.js?v=20261007-live-server-fix" defer></script>
   </head>
   <body>
@@ -63,8 +63,14 @@
                   type="text"
                   name="project-id"
                   placeholder="e.g. RDSDEV"
+                  aria-describedby="project-id-help"
                   required
                 />
+                <small class="field-help" id="project-id-help">
+                  Use the project key before the hyphen in an issue URL, for
+                  example:
+                  <code>https://&lt;baseURL&gt;/browse/RDSDEV-xxxxx</code>
+                </small>
               </label>
               <label class="field">
                 <span>Board ID <span class="required">*</span></span>
@@ -73,9 +79,16 @@
                   name="board-id"
                   min="1"
                   step="1"
-                  placeholder="e.g. 318"
+                  aria-describedby="board-id-help"
                   required
                 />
+                <small class="field-help" id="board-id-help">
+                  Open the board your team follows and use the value after
+                  <code>rapidView=</code> in its URL, for example:
+                  <code
+                    >https://&lt;baseURL&gt;/secure/RapidBoard.jspa?rapidView=xxxxx</code
+                  >
+                </small>
               </label>
               <fieldset class="workflow-fieldset is-disabled" disabled>
                 <legend>Workflow stages</legend>
