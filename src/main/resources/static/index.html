@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=20261009-overview-heading" />
+    <link rel="stylesheet" href="/styles.css?v=20261009-clickable-sprint-tabs" />
   </head>
 
   <body>
@@ -102,24 +102,8 @@
             started.
           </p>
         </section>
-        <div id="tiles" class="tile-container project-tiles-grid"></div>
         <div id="userSection" class="user-section">
-          <button
-            type="button"
-            class="back-btn"
-            aria-label="Back to project"
-            onclick="goBack()"
-          >
-            <span aria-hidden="true">←</span>
-            <span>Back to project</span>
-          </button>
-          <p class="empty-kpi-note">
-            No KPI metrics have been provided for this project yet.
-          </p>
-          <div class="kpi-section" id="kpiSection">
-            <h3 class="kpi-title">Performance KPIs</h3>
-            <div class="kpi-grid" id="kpiGrid"></div>
-          </div>
+          <div id="kpiSections"></div>
         </div>
       </div>
     </main>
@@ -160,6 +144,6 @@
       <p>Engineered by Aswin R Asok</p>
     </footer>
     <script src="/js/config.js?v=20261009-stream-hierarchy" defer></script>
-    <script src="/js/dashboard.js?v=20261009-overview-copy-no-title" defer></script>
+    <script src="/js/dashboard.js?v=20261009-clickable-sprint-tabs" defer></script>
   </body>
 </html>

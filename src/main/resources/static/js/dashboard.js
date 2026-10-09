@@ -1,40 +1,17 @@
 let activeDomainId = null;
-let activeProjectTile = null;
-let activeProjectData = null;
 let activeFeederDomainKey = null;
 let registeredProjects = [];
 let adminToken = null;
 let logoTapCount = 0;
 let logoTapTimer = null;
 const emptyKpis = {
-  projectScore: "--",
   defectLeakageRate: "--",
   testEffectiveness: "--",
   executionRate: "--",
   automationPassRate: "--",
 };
 
-function createCircularGauge(value) {
-  const numericValue = Number.parseFloat(value);
-  const hasValue = Number.isFinite(numericValue);
-  const percentage = hasValue ? Math.min(100, Math.max(0, numericValue)) : 0;
-  const radius = 49;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - percentage / 100);
-  const color = percentage >= 50 ? "#20a464" : "#ef4444";
-  const label = hasValue ? `${percentage}%` : "--";
-
-  return `
-    <svg class="circular-gauge" viewBox="0 0 120 120" role="img" aria-label="Project score ${label}">
-      <circle cx="60" cy="60" r="${radius}" fill="none" stroke="#b8b5b5" stroke-width="8" />
-      ${hasValue ? `<circle cx="60" cy="60" r="${radius}" fill="none" stroke="${color}" stroke-width="8" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 60 60)" />` : ""}
-      <text x="60" y="60" text-anchor="middle" dominant-baseline="middle" font-size="25" font-weight="700" fill="#111111">${label}</text>
-    </svg>
-  `;
-}
-
 function initializeApp() {
-  document.getElementById("tiles").style.display = "none";
   document.getElementById("userSection").classList.remove("active");
   document.getElementById("overviewSection").classList.remove("hidden");
   document
@@ -237,18 +214,13 @@ function refreshVisibleFeederDomain() {
     showOverview();
     return;
   }
-  activeProjectData = null;
-  document.getElementById("userSection").classList.remove("active");
-  document.getElementById("tiles").style.display = "grid";
-  renderProjectTiles(projects);
+  renderDomainKpis(projects);
 }
 
 function showOverview() {
   activeFeederDomainKey = null;
   activeDomainId = null;
-  activeProjectData = null;
   document.getElementById("userSection").classList.remove("active");
-  document.getElementById("tiles").style.display = "none";
   document.getElementById("overviewSection").classList.remove("hidden");
   document.getElementById("selectedProjectContext").classList.add("hidden");
 }
@@ -405,90 +377,22 @@ function openFeederDomain(event, projects) {
   const { domain, streamName, projectName } = projects[0];
   activeDomainId = normalizedName(domain);
   activeFeederDomainKey = feederDomainKey(streamName, projectName, domain);
-  activeProjectData = null;
   document.getElementById("selectedProjectLabel").textContent =
     `${streamName} · ${domain}`;
   document.getElementById("selectedProjectTitle").textContent = projectName;
   document.getElementById("selectedProjectContext").classList.remove("hidden");
   document.getElementById("overviewSection").classList.add("hidden");
-  document.getElementById("tiles").style.display = "grid";
-  document.getElementById("userSection").classList.remove("active");
+  document.getElementById("userSection").classList.add("active");
   document
     .querySelectorAll(".hero-nav-subitem")
     .forEach((item) => item.classList.remove("is-active"));
   event.currentTarget.classList.add("is-active");
   closeHeroMenu();
-  renderProjectTiles(projects);
+  renderDomainKpis(projects);
 }
 
 function formatProjectName(projectName) {
   return projectName.replace(/datahub/gi, "Data Hub");
-}
-
-function renderProjectTiles(projects) {
-  const tiles = document.getElementById("tiles");
-  const projectTiles = projects.map((project) => {
-    const tile = document.createElement("article");
-    tile.className = "tile project-tile";
-    const openButton = document.createElement("button");
-    openButton.type = "button";
-    openButton.className = "project-tile-open";
-    openButton.addEventListener("click", () =>
-      openProjectMetrics(project, openButton),
-    );
-
-    const header = document.createElement("span");
-    header.className = "tile-header project-tile-heading";
-    const text = document.createElement("span");
-    text.className = "tile-text";
-    const projectName = document.createElement("span");
-    projectName.className = "tile-team-name";
-    projectName.textContent = formatProjectName(project.projectName);
-    const sprintName = document.createElement("span");
-    sprintName.className = "tile-sprint";
-    sprintName.textContent = `${project.projectId}_${project.boardId}`;
-    text.append(projectName, sprintName);
-    header.append(text);
-
-    const gauge = document.createElement("span");
-    gauge.className = "project-tile-gauge";
-    gauge.innerHTML = createCircularGauge(
-      (project.kpis ?? emptyKpis).projectScore,
-    );
-
-    const insightsTitle = document.createElement("span");
-    insightsTitle.className = "insights-title";
-    insightsTitle.textContent = "Key Insights";
-    const insights = document.createElement("span");
-    insights.className = "title-content";
-    [
-      "Defect Leakage",
-      "Test Effectiveness",
-      "Execution Rate",
-      "Automation Pass Rate",
-    ].forEach((insight) => {
-      const item = document.createElement("span");
-      item.className = "titlestyle";
-      item.textContent = insight;
-      insights.append(item);
-    });
-
-    openButton.append(header, gauge, insightsTitle, insights);
-    tile.append(openButton);
-    if (adminToken) {
-      tile.append(
-        createDeleteButton(
-          `Delete ${formatProjectName(project.projectName)} project`,
-          () => deleteFeederProject(project),
-          "project-delete-button",
-        ),
-      );
-    }
-    return tile;
-  });
-  tiles.replaceChildren(...projectTiles);
-  activeProjectTile =
-    projectTiles[0]?.querySelector(".project-tile-open") ?? null;
 }
 
 function createDeleteButton(label, onDelete, extraClass = "") {
@@ -505,21 +409,70 @@ function createDeleteButton(label, onDelete, extraClass = "") {
   return button;
 }
 
-function openProjectMetrics(project, tile) {
-  activeProjectData = {
-    ...project,
-    kpis: project.kpis ?? emptyKpis,
-  };
-  activeProjectTile = tile;
+function renderDomainKpis(projects) {
+  const sections = projects.map((project) => {
+    const section = document.createElement("section");
+    section.className = "kpi-section";
 
-  document.getElementById("tiles").style.display = "none";
-  document.getElementById("userSection").classList.add("active");
-  document.querySelector(".empty-kpi-note").textContent =
-    "No KPI metrics have been provided for this project yet.";
-  renderTeamKpis(activeProjectData.kpis);
+    const heading = document.createElement("div");
+    heading.className = "project-dashboard-heading";
+    const tabs = document.createElement("div");
+    tabs.className = "project-dashboard-tabs";
+    [
+      {
+        label: `${project.projectId} · Board ${project.boardId}`,
+        className: "project-dashboard-tab is-current",
+      },
+      {
+        label: "Last Sprint",
+        className: "project-dashboard-tab is-placeholder",
+      },
+      {
+        label: "Last to Last Sprint",
+        className: "project-dashboard-tab is-placeholder",
+      },
+    ].forEach(({ label, className }) => {
+      const tab = document.createElement("button");
+      tab.type = "button";
+      tab.className = className;
+      tab.textContent = label;
+      tab.setAttribute("aria-pressed", String(className.includes("is-current")));
+      tab.addEventListener("click", () => {
+        tabs.querySelectorAll(".project-dashboard-tab").forEach((item) => {
+          const isSelected = item === tab;
+          item.classList.toggle("is-current", isSelected);
+          item.classList.toggle("is-placeholder", !isSelected);
+          item.setAttribute("aria-pressed", String(isSelected));
+        });
+      });
+      tabs.append(tab);
+    });
+    heading.append(tabs);
+
+    if (adminToken) {
+      heading.classList.add("has-project-delete");
+      heading.append(
+        createDeleteButton(
+          `Delete ${formatProjectName(project.projectName)} project`,
+          () => deleteFeederProject(project),
+          "project-delete-button",
+        ),
+      );
+    }
+
+    const title = document.createElement("h4");
+    title.className = "kpi-title";
+    title.textContent = "Performance KPIs";
+    const grid = document.createElement("div");
+    grid.className = "kpi-grid";
+    renderTeamKpis(project.kpis ?? emptyKpis, grid);
+    section.append(heading, title, grid);
+    return section;
+  });
+  document.getElementById("kpiSections").replaceChildren(...sections);
 }
 
-function renderTeamKpis(kpis = {}) {
+function renderTeamKpis(kpis = {}, gridElement) {
   const metrics = [
     {
       key: "defectLeakageRate",
@@ -576,14 +529,7 @@ function renderTeamKpis(kpis = {}) {
     return article;
   });
 
-  document.getElementById("kpiGrid").replaceChildren(...cards);
-}
-
-function goBack() {
-  if (!activeDomainId) return;
-  document.getElementById("userSection").classList.remove("active");
-  document.getElementById("tiles").style.display = "grid";
-  activeProjectTile?.focus();
+  gridElement.replaceChildren(...cards);
 }
 
 function toggleHeroMenu() {
