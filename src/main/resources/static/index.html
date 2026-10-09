@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=20261007-admin2" />
+    <link rel="stylesheet" href="/styles.css?v=20261009-overview-heading" />
   </head>
 
   <body>
@@ -67,63 +67,7 @@
             class="hero-nav-panel hidden"
             aria-label="Main menu"
           >
-            <div class="hero-nav-group" data-dept="development">
-              <button
-                type="button"
-                class="hero-nav-toggle"
-                onclick="toggleNavGroup(this)"
-              >
-                <span>Development</span>
-                <span class="hero-nav-chevron" aria-hidden="true"></span>
-              </button>
-              <div class="hero-nav-subitems">
-                <button
-                  type="button"
-                  class="hero-nav-subitem"
-                  onclick="openSampleDomain(event, 'development')"
-                >
-                  Sample Project
-                </button>
-              </div>
-            </div>
-            <div class="hero-nav-group" data-dept="qa">
-              <button
-                type="button"
-                class="hero-nav-toggle"
-                onclick="toggleNavGroup(this)"
-              >
-                <span>QA</span>
-                <span class="hero-nav-chevron" aria-hidden="true"></span>
-              </button>
-              <div class="hero-nav-subitems">
-                <button
-                  type="button"
-                  class="hero-nav-subitem"
-                  onclick="openSampleDomain(event, 'qa')"
-                >
-                  Sample Project
-                </button>
-              </div>
-            </div>
-            <div class="hero-nav-group" data-dept="devops">
-              <button
-                type="button"
-                class="hero-nav-toggle"
-                onclick="toggleNavGroup(this)"
-              >
-                <span>DevOps</span>
-                <span class="hero-nav-chevron" aria-hidden="true"></span>
-              </button>
-              <div class="hero-nav-subitems">
-                <button
-                  type="button"
-                  class="hero-nav-subitem"
-                  onclick="openSampleDomain(event, 'devops')"
-                >
-                  Sample Project
-                </button>
-              </div>
-            </div>
+            <p class="hero-nav-empty">No streams have been added yet.</p>
           </nav>
         </div>
         <p
@@ -140,9 +84,9 @@
           <div class="selected-project-marker" aria-hidden="true"></div>
           <div>
             <p class="selected-project-label" id="selectedProjectLabel">
-              Sample Data
+              Project
             </p>
-            <h2 id="selectedProjectTitle">Sample Project</h2>
+            <h2 id="selectedProjectTitle"></h2>
           </div>
         </section>
         <section
@@ -150,20 +94,15 @@
           class="overview-section"
           aria-labelledby="overviewTitle"
         >
-          <p class="overview-eyebrow">Delivery 360</p>
-          <h2 id="overviewTitle">Overview</h2>
-          <p>
-            A centralized performance dashboard that tracks sprint-wise KPIs,
-            project health, team and individual performance, and delivery trends
-            across projects, providing actionable insights for continuous
-            improvement.
-          </p>
-          <p>
-            Use the navigation menu to access different project dashboards and
-            track delivery metrics.
+          <p class="overview-eyebrow">Overview</p>
+          <h2 id="overviewTitle">No dashboards configured yet</h2>
+          <p id="overviewDescription" class="hidden"></p>
+          <p id="overviewMessage">
+            Add a stream, project name, and domain in the Data Feeder to get
+            started.
           </p>
         </section>
-        <div id="tiles" class="tile-container sample-projects-grid"></div>
+        <div id="tiles" class="tile-container project-tiles-grid"></div>
         <div id="userSection" class="user-section">
           <button
             type="button"
@@ -174,7 +113,9 @@
             <span aria-hidden="true">←</span>
             <span>Back to project</span>
           </button>
-          <p class="sample-data-note">Sample metrics for demonstration</p>
+          <p class="empty-kpi-note">
+            No KPI metrics have been provided for this project yet.
+          </p>
           <div class="kpi-section" id="kpiSection">
             <h3 class="kpi-title">Performance KPIs</h3>
             <div class="kpi-grid" id="kpiGrid"></div>
@@ -218,7 +159,7 @@
     <footer class="page-footer">
       <p>Engineered by Aswin R Asok</p>
     </footer>
-    <script src="/js/config.js?v=20261007" defer></script>
-    <script src="/js/dashboard.js?v=20261007-admin2" defer></script>
+    <script src="/js/config.js?v=20261009-stream-hierarchy" defer></script>
+    <script src="/js/dashboard.js?v=20261009-overview-copy-no-title" defer></script>
   </body>
 </html>

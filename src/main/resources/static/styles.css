@@ -184,10 +184,14 @@ body::before {
   left: 0;
   width: 32%;
   min-width: min(280px, 100%);
+  max-height: min(70vh, calc(100vh - 160px));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 300;
   margin: 0;
   padding: 8px 6px;
-  border-radius: 18px;
+  border-radius: 20px;
   background: linear-gradient(120deg, #003f70 0%, #00549a 58%, #0079c8 100%);
   border: 1px solid #00549a;
   box-shadow: var(--shadow-md);
@@ -203,6 +207,14 @@ body::before {
 
 .hero-nav-group:last-child {
   border-bottom: 0;
+}
+
+.hero-nav-empty {
+  margin: 0;
+  padding: 14px 16px;
+  color: #d9edf9;
+  font-family: var(--font-ui);
+  font-size: 14px;
 }
 
 .hero-nav-toggle {
@@ -239,19 +251,33 @@ body::before {
   transition: max-height 0.25s ease;
 }
 
-.hero-nav-group.is-expanded .hero-nav-subitems {
-  max-height: 200px;
+.hero-nav-group.is-expanded > .hero-nav-subitems {
+  max-height: none;
+  overflow: visible;
 }
 
-.registered-stream-row {
+.hero-nav-subitems > .registered-nav-group {
+  border-bottom: 0;
+}
+
+.hero-nav-subitems > .registered-nav-group > .hero-nav-toggle {
+  padding: 10px 16px 10px 28px;
+  font-size: 14px;
+}
+
+.registered-domain-row {
   display: flex;
   align-items: center;
 }
 
-.registered-stream-row .hero-nav-subitem {
+.registered-domain-row .hero-nav-subitem {
   flex: 1;
   min-width: 0;
   width: auto;
+}
+
+.registered-domain-row .registered-domain-item {
+  padding-left: 48px;
 }
 
 .admin-delete-button {
@@ -473,7 +499,7 @@ body::before {
   line-height: 1.2;
 }
 
-.sample-data-note {
+.empty-kpi-note {
   margin: 0 0 12px;
   color: var(--text-muted);
   font-size: 13px;
@@ -496,12 +522,11 @@ body::before {
 }
 
 .overview-eyebrow {
-  margin: 0 0 8px;
+  margin: 0 0 14px;
   color: var(--accent-deep);
-  font-size: 13px;
+  font-size: 30px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  line-height: 1.2;
 }
 
 .overview-section h2 {
@@ -717,17 +742,17 @@ button {
   grid-column: 4 / span 2;
 }
 
-#tiles.sample-projects-grid {
+#tiles.project-tiles-grid {
   grid-template-columns: minmax(0, 640px);
   justify-content: center;
   margin: 24px auto;
 }
 
-#tiles.sample-projects-grid > .tile {
+#tiles.project-tiles-grid > .tile {
   grid-column: auto;
 }
 
-.sample-project-tile {
+.project-tile {
   position: relative;
   display: block;
   box-sizing: border-box;
@@ -745,11 +770,11 @@ button {
   border-radius: 18px;
 }
 
-.sample-project-tile:hover {
+.project-tile:hover {
   color: var(--text-primary);
 }
 
-.sample-project-tile .tile-header {
+.project-tile .tile-header {
   min-height: 56px;
   margin: 0;
   padding: 10px 120px 10px 12px;
@@ -758,26 +783,26 @@ button {
   text-align: left;
 }
 
-.sample-tile-heading {
+.project-tile-heading {
   display: flex;
   align-items: center;
 }
 
-.sample-project-tile .tile-text {
+.project-tile .tile-text {
   align-items: flex-start;
 }
 
-.sample-project-tile .tile-team-name {
+.project-tile .tile-team-name {
   color: #ffffff;
   font-size: 27px;
 }
 
-.sample-project-tile .tile-sprint {
+.project-tile .tile-sprint {
   color: #ffffff;
   font-size: 13px;
 }
 
-.sample-tile-gauge {
+.project-tile-gauge {
   position: absolute;
   top: 0;
   right: 28px;
@@ -786,24 +811,24 @@ button {
   height: 112px;
 }
 
-.sample-project-tile .insights-title {
+.project-tile .insights-title {
   margin: 24px 0 14px;
   font-size: 12px;
   letter-spacing: 0.12em;
 }
 
-.sample-project-tile .title-content {
+.project-tile .title-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
-.sample-project-tile .titlestyle {
+.project-tile .titlestyle {
   margin-bottom: 8px;
   font-size: 15px;
 }
 
-.sample-project-tile .circular-gauge {
+.project-tile .circular-gauge {
   display: block;
   box-sizing: border-box;
   width: 112px;
@@ -1594,31 +1619,31 @@ button:active {
     min-width: 100%;
   }
 
-  #tiles.sample-projects-grid {
+  #tiles.project-tiles-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .sample-project-tile {
+  .project-tile {
     min-height: 260px;
     padding: 12px;
   }
 
-  .sample-project-tile .tile-header {
+  .project-tile .tile-header {
     padding-right: 96px;
   }
 
-  .sample-project-tile .tile-team-name {
+  .project-tile .tile-team-name {
     font-size: 21px;
   }
 
-  .sample-tile-gauge {
+  .project-tile-gauge {
     top: 2px;
     right: 8px;
     width: 88px;
     height: 88px;
   }
 
-  .sample-project-tile .circular-gauge {
+  .project-tile .circular-gauge {
     width: 88px;
     height: 88px;
     padding: 4px;
