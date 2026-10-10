@@ -6,8 +6,12 @@
     <meta name="theme-color" content="#eaf2f8" />
     <meta name="datafeeder-api-base-url" content="http://localhost:8090" />
     <title>Settings · Data Feeder</title>
-    <link rel="stylesheet" href="./style.css?v=20261008" />
-    <script src="./app.js?v=20261007-live-server-fix" defer></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css?v=20261010-compact-domain-options" />
+    <script src="./app.js?v=20261010-domain-dropdown-menu" defer></script>
   </head>
   <body>
     <main class="settings-page">
@@ -39,15 +43,55 @@
                   required
                 />
               </label>
-              <label class="field">
-                <span>Domain <span class="required">*</span></span>
-                <input
-                  type="text"
-                  name="domain"
-                  placeholder="e.g. QA"
-                  required
-                />
-              </label>
+              <div class="field">
+                <span id="domain-field-label"
+                  >Domain <span class="required">*</span></span
+                >
+                <span class="domain-select">
+                  <input type="hidden" name="domain" />
+                  <button
+                    class="domain-select-trigger"
+                    id="domain-select-trigger"
+                    type="button"
+                    aria-labelledby="domain-field-label domain-selected-value"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-controls="domain-options"
+                  >
+                    <span id="domain-selected-value">Select a domain</span>
+                    <span class="domain-select-arrow" aria-hidden="true"></span>
+                  </button>
+                  <span
+                    class="domain-select-menu"
+                    id="domain-options"
+                    role="listbox"
+                    aria-labelledby="domain-field-label"
+                    hidden
+                  >
+                    <span
+                      class="domain-select-option"
+                      role="option"
+                      tabindex="-1"
+                      data-value="QA"
+                      >QA</span
+                    >
+                    <span
+                      class="domain-select-option"
+                      role="option"
+                      tabindex="-1"
+                      data-value="Development"
+                      >Development</span
+                    >
+                    <span
+                      class="domain-select-option"
+                      role="option"
+                      tabindex="-1"
+                      data-value="DevOps"
+                      >DevOps</span
+                    >
+                  </span>
+                </span>
+              </div>
               <label class="field">
                 <span>Project name <span class="required">*</span></span>
                 <input
