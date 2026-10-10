@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=20261009-clickable-sprint-tabs" />
+    <link rel="stylesheet"     href="/styles.css?v=20261010-aligned-admin-form" />
   </head>
 
   <body>
@@ -43,12 +43,17 @@
                 <h1
                   class="hero-wordmark"
                   aria-label="app name"
-                  aria-description="Click five times for admin access"
-                  tabindex="0"
                 >
                   <span class="wordmark-light">Delivery</span
                   ><span class="wordmark-bold">360</span>
-                  <span class="wordmark-symbol" aria-hidden="true">➤</span>
+                  <button
+                    class="wordmark-admin-trigger"
+                    type="button"
+                    aria-label="Admin access"
+                    title="Click five times for admin access"
+                  >
+                    <span class="wordmark-symbol" aria-hidden="true">➤</span>
+                  </button>
                 </h1>
                 <button
                   class="admin-mode-button hidden"
@@ -81,7 +86,6 @@
           class="selected-project-context hidden"
           aria-labelledby="selectedProjectTitle"
         >
-          <div class="selected-project-marker" aria-hidden="true"></div>
           <div>
             <p class="selected-project-label" id="selectedProjectLabel">
               Project
@@ -144,6 +148,6 @@
       <p>Engineered by Aswin R Asok</p>
     </footer>
     <script src="/js/config.js?v=20261009-stream-hierarchy" defer></script>
-    <script src="/js/dashboard.js?v=20261009-clickable-sprint-tabs" defer></script>
+    <script src="/js/dashboard.js?v=20261010-clear-admin-credentials" defer></script>
   </body>
 </html>

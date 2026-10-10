@@ -15,16 +15,8 @@ function initializeApp() {
   document.getElementById("userSection").classList.remove("active");
   document.getElementById("overviewSection").classList.remove("hidden");
   document
-    .querySelector(".hero-wordmark")
+    .querySelector(".wordmark-admin-trigger")
     .addEventListener("click", handleLogoTap);
-  document
-    .querySelector(".hero-wordmark")
-    .addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        handleLogoTap();
-      }
-    });
   document
     .getElementById("admin-login-form")
     .addEventListener("submit", loginAdmin);
@@ -108,6 +100,9 @@ async function loginAdmin(event) {
 
 function logoutAdmin() {
   adminToken = null;
+  const loginForm = document.getElementById("admin-login-form");
+  loginForm.elements.username.value = "";
+  loginForm.elements.password.value = "";
   document.body.classList.remove("admin-mode");
   document.getElementById("admin-mode-button").classList.add("hidden");
   renderRegisteredProjects(registeredProjects);

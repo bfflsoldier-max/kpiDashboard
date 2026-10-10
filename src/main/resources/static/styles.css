@@ -339,10 +339,23 @@ body::before {
   gap: 8px;
   line-height: 0.95;
   color: #ffffff;
+}
+
+.wordmark-admin-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
   cursor: pointer;
 }
 
-.hero-wordmark:focus-visible {
+.wordmark-admin-trigger:focus-visible {
   outline: 2px solid #ffffff;
   outline-offset: 5px;
   border-radius: 3px;
@@ -435,7 +448,6 @@ body::before {
 .selected-project-context {
   display: flex;
   align-items: center;
-  gap: 16px;
   margin: 24px auto 8px;
   padding: 16px 20px;
   border: 1px solid #b8d9ec;
@@ -453,15 +465,6 @@ body::before {
   margin: 12px 0;
   color: var(--text-muted);
   font-size: 14px;
-}
-
-.selected-project-marker {
-  width: 12px;
-  height: 12px;
-  flex: 0 0 12px;
-  border-radius: 50%;
-  background: #20a464;
-  box-shadow: 0 0 0 5px rgba(32, 164, 100, 0.14);
 }
 
 .selected-project-label {
@@ -998,7 +1001,6 @@ button:active {
   padding: 8px 16px 8px 12px;
   margin: 0;
   border: 0;
-  border-left: 4px solid var(--accent-strong);
   border-radius: 8px;
   background: var(--surface-soft);
   color: var(--text-secondary);
@@ -1027,7 +1029,6 @@ button:active {
 }
 
 .project-dashboard-tab.is-placeholder {
-  border-left-color: var(--border-soft);
   color: var(--text-muted);
 }
 
@@ -1221,10 +1222,15 @@ button:active {
 
 .admin-dialog-close {
   position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   top: 12px;
   right: 12px;
   width: 34px;
   height: 34px;
+  margin: 0;
+  padding: 0;
   border: 0;
   border-radius: 50%;
   background: var(--surface-soft);
@@ -1243,8 +1249,10 @@ button:active {
 }
 
 .admin-login-field input {
-  min-height: 42px;
-  padding: 9px 11px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   color: var(--text-primary);
@@ -1264,6 +1272,9 @@ button:active {
 }
 
 .admin-login-submit {
+  box-sizing: border-box;
+  width: 100%;
+  margin-left: 0;
   min-height: 42px;
   border: 0;
   border-radius: 8px;
